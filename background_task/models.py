@@ -18,7 +18,6 @@ from six import python_2_unicode_compatible
 from background_task.settings import app_settings
 from background_task.signals import task_failed, task_rescheduled
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -37,6 +36,12 @@ class TaskQuerySet(models.QuerySet):
             creator_content_type=content_type,
             creator_object_id=creator.id,
         )
+
+    def get_first_task(self):
+        try:
+            return self[:1][0]
+        except IndexError:
+            return None
 
 
 class TaskManager(models.Manager):
@@ -60,11 +65,11 @@ class TaskManager(models.Manager):
 
     def find_next_task(self, queue, task_names):
         kwargs = {}
-        
+
         if django.VERSION >= (1, 11):
             kwargs['skip_locked'] = True
 
-        return self.find_available(queue).filter(task_name__in=task_names).select_for_update(**kwargs).first()
+        return self.find_available(queue).filter(task_name__in=task_names).select_for_update(**kwargs).get_first_task()
 
     def unlocked(self, now):
         max_run_time = app_settings.BACKGROUND_TASK_MAX_RUN_TIME
@@ -189,6 +194,7 @@ class Task(models.Model):
                 return False
         else:
             return None
+
     locked_by_pid_running.boolean = True
 
     def has_error(self):
@@ -196,6 +202,7 @@ class Task(models.Model):
         Check if the last_error field is empty.
         """
         return bool(self.last_error)
+
     has_error.boolean = True
 
     def params(self):
@@ -252,7 +259,7 @@ class Task(models.Model):
             backoff = timedelta(seconds=(self.attempts ** 4) + 5)
             self.run_at = timezone.now() + backoff
             logger.warning('Rescheduling task %s for %s later at %s', self,
-                backoff, self.run_at)
+                           backoff, self.run_at)
             task_rescheduled.send(sender=self.__class__, task=self)
             self.locked_by = None
             self.locked_at = None
