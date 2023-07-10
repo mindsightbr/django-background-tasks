@@ -77,6 +77,8 @@ class Command(BaseCommand):
         sleep = options.pop('sleep', 5.0)
         queue = options.pop('queue', None)
         log_std = options.pop('log_std', False)
+        time_to_wait_start = options.pop('time_to_wait_start', None)
+        time_to_wait_end = options.pop('time_to_wait_end', None)
         sig_manager = SignalManager()
 
         if log_std:
@@ -100,5 +102,8 @@ class Command(BaseCommand):
                 logger.debug('waiting for tasks')
                 time.sleep(sleep)
             else:
-                # there were some tasks to process, let's check if there is more work to do after a little break.
-                time.sleep(random.uniform(sig_manager.time_to_wait[0], sig_manager.time_to_wait[1]))
+                if time_to_wait_start is not None and time_to_wait_end is not None:
+                    time.sleep(random.uniform(time_to_wait_start, time_to_wait_end))
+                else:
+                    # there were some tasks to process, let's check if there is more work to do after a little break.
+                    time.sleep(random.uniform(sig_manager.time_to_wait[0], sig_manager.time_to_wait[1]))
