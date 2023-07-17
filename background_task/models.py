@@ -121,6 +121,12 @@ class TaskManager(models.Manager):
         return self.get_task(task_name, args, kwargs).delete()
 
 
+class UpdatedTask(models.Model):
+    queue = models.CharField(max_length=190, db_index=True,
+                             null=True, blank=True)
+    was_updated = models.BooleanField(default=True)
+
+
 @python_2_unicode_compatible
 class Task(models.Model):
     # the "name" of the task/function to be run

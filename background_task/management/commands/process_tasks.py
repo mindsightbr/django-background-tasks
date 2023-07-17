@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand
 from background_task.tasks import tasks, autodiscover
 from background_task.utils import SignalManager
 from compat import close_connection
-
+from .models import UpdatedTask
 
 logger = logging.getLogger(__name__)
 
@@ -94,11 +94,23 @@ class Command(BaseCommand):
                 # shutting down gracefully
                 break
 
-            if not self._tasks.run_next_task(queue):
-                # there were no tasks in the queue, let's recover.
-                close_connection()
-                logger.debug('waiting for tasks')
-                time.sleep(sleep)
+            # TODO: queue é uma lista
+            has_new_data = False
+            for q in queue and not has_new_data:
+                try:
+                    UpdatedTask.objects.get(queue=q)
+                except UpdatedTask.DoesNotExist:
+                    # Digitou o nome werrado?
+                    has_new_data = True
+                    pass
+
+            if has_new_data:
+            #     TODO: Run Next task
+                if not self._tasks.run_next_task(queue):
+                    # there were no tasks in the queue, let's recover.
+                    close_connection()
+                    logger.debug('waiting for tasks')
+                    time.sleep(sleep)
             else:
                 # there were some tasks to process, let's check if there is more work to do after a little break.
                 time.sleep(random.uniform(sig_manager.time_to_wait[0], sig_manager.time_to_wait[1]))
