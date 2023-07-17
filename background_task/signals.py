@@ -3,7 +3,6 @@ import django.dispatch
 from django.db import connections
 from background_task.settings import app_settings
 from django.dispatch import Signal, receiver
-from .models import UpdatedTask
 
 task_created = django.dispatch.Signal(['task'])
 task_error = django.dispatch.Signal(['task'])
@@ -38,6 +37,7 @@ task_finished.connect(close_old_connections)
 
 @receiver(task_rescheduled)
 def register_new_task(sender, task, **kwargs):
+    from .models import UpdatedTask
     # TODO: Here I shoud register a new task
     queue = task.queue
     UpdatedTask.objects.create_or_updated(queue=queue, defaults={"was_updated": True})
