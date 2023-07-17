@@ -9,8 +9,8 @@ from django.core.management.base import BaseCommand
 
 from background_task.tasks import tasks, autodiscover
 from background_task.utils import SignalManager
-from compat import close_connection
 from .models import UpdatedTask
+from django.db import close_old_connections as close_connection
 
 logger = logging.getLogger(__name__)
 
