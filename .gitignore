@@ -73,3 +73,4 @@ test_db
 .idea
 poetry.lock
 pyproject.toml
+.python-version

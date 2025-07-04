@@ -314,21 +314,22 @@ class TaskProxy(object):
 tasks = Tasks()
 
 
+
 def autodiscover():
     """
     Autodiscover tasks.py files in much the same way as admin app
     """
-    import imp
     from django.conf import settings
+    from importlib import import_module
 
     for app in settings.INSTALLED_APPS:
         try:
-            app_path = import_module(app).__path__
+            import_module(app).__path__
         except (AttributeError, ImportError):
             continue
         try:
-            imp.find_module('tasks', app_path)
+            import_module('tasks', package=app)
         except ImportError:
             continue
 
-        import_module("%s.tasks" % app)
+        import_module("{}.tasks".format(app))

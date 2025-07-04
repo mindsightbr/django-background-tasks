@@ -1,0 +1,13 @@
+FROM python:3.10.2
+
+WORKDIR /app
+
+COPY ../ /app
+
+COPY Dockerfiles/tox_3_10.ini /app/tox.ini
+
+RUN pip install tox
+
+RUN rm -rf .tox/*
+
+CMD ["tox"]
