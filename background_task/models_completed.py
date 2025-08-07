@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
 
-from compat.models import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
 from django.db import models
 from django.utils import timezone
-from django.utils.six import python_2_unicode_compatible
 
 from background_task.models import Task
 
@@ -51,7 +50,6 @@ class CompletedTaskQuerySet(models.QuerySet):
         return qs
 
 
-@python_2_unicode_compatible
 class CompletedTask(models.Model):
     # the "name" of the task/function to be run
     task_name = models.CharField(max_length=190, db_index=True)
