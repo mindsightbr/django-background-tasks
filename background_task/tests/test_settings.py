@@ -29,7 +29,7 @@ SECRET_KEY = 'foo'
 
 USE_TZ = True
 BACKGROUND_TASK_RUN_ASYNC = False
-
+BACKGROUND_TASKS_MIN_ATTEMPTS_TO_LOG_ERROR = 0
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

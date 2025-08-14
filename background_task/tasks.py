@@ -320,16 +320,9 @@ def autodiscover():
     Autodiscover tasks.py files in much the same way as admin app
     """
     from django.conf import settings
-    from importlib import import_module
-
+ 
     for app in settings.INSTALLED_APPS:
         try:
-            import_module(app).__path__
-        except (AttributeError, ImportError):
-            continue
-        try:
-            import_module('tasks', package=app)
+            import_module("%s.tasks" % app)
         except ImportError:
             continue
-
-        import_module("{}.tasks".format(app))
